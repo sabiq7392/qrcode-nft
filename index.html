@@ -1,0 +1,181 @@
+<html>
+  <head>
+    <!-- Moralis SDK code -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1>QR CODE SCAN NFTS</h1>
+
+    <div id="nftContainer"></div>
+    <div id="reader" width="600px"></div>
+
+
+    <script>
+
+      // START =======================================================================
+
+      const ethServerUrl = 'https://b74socz9m6xt.usemoralis.com:2053/server';
+      const ethAppId = 'YD8qqHSycqLhhmbrzeXuwutbNTWpy215O7hJ7xZWH'
+
+      const polygonServerUrl = 'https://2xirlzem5bwn.usemoralis.com:2053/server';
+      const polygonAppId = 'x7cWnoDaC3UX9Nni4QbX4pc0K4EO3KwMVxgHv9if';
+
+      const serverUrl = polygonServerUrl;
+      const appId = polygonAppId;
+
+      Moralis.start({ serverUrl, appId });
+
+      // AUTHENTICATE ================================================================
+      // let isUser;
+      // Moralis.authenticate().then(user => {
+      //   isUser = user.get('ethAddress');
+      //   console.log(user.get('ethAddress'))
+      // }).then(() => console.log({ isUser }))
+      
+
+      // GET NFT =====================================================================
+      // NOTE https://opensea.io/assets/matic/[address]/[token_id]
+
+
+      const spacePunkPublictAddress = '0x45DB714f24f5A313569c41683047f1d49e78Ba07';
+      const boredElonPublicAddress = '0xf56345338cb4cddaf915ebef3bfde63e70fe3053'
+      const localWalletPublicAddress = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+      const sabiqPublicAddress = '0x4F78E607E3095E9e7854DbEE20B50553bafabFc2';
+
+      const sabiq = {
+        nft: {
+          address: '0x2953399124f0cbb46d2cbacd8a89cf0599974963',
+          token_id: '35946324300140583941693400867539028338982371689111445375702148953813043642369',
+          chain: 'matic'
+        }
+      };
+
+      const boredApeYachtClub = {
+        nft: {
+          address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+          token_id: '8520',
+          chain: 'eth',
+        }
+      };
+
+      async function getNfts() {
+        const options = { chain: 'MATIC', address: boredElonPublicAddress };
+        const nfts = await Moralis.Web3.getNFTs(options)
+
+        // console.log(nfts);
+        console.log(nfts)
+
+        // nfts.forEach( async (nft, index) => {
+        //   const url = fixUrl(nft.token_uri);
+
+        //   if (index < 20) {
+        //     const response = await fetch(url);
+        //     const data = await response.json();
+        //     console.log(data)
+        //     // document.getElementById('nftContainer').innerHTML += `
+        //     //   <img src="${fixUrl(data.image)}" alt="${data.name}" width="100" height="100" />
+        //     // `;
+        //   }
+        // });
+      }
+      // getNfts();
+
+      async function getNFTOwners() {
+        const boredElenNftTokenAddress = '0x9abb7bddc43fa67c76a62d8c016513827f59be1b'
+        const options = { chain: 'matic', address: '0x2953399124F0cBB46d2CbACD8A89cF0599974963' };
+        const owners = await Moralis.Web3API.token.getNFTOwners(options);
+
+        console.log({ getNFTOwners: owners })
+      }
+      // getNFTOwners();
+
+      async function searchNfts() {
+        const options = { q: "bored", chain: 'matic' };
+        const nfts = await Moralis.Web3API.token.searchNFTs(options);
+
+        console.log({ searchNfts: nfts })
+      }
+      // searchNfts();
+
+      async function getNFTMetadata() {
+        const options = { address: "0xf56345338cb4cddaf915ebef3bfde63e70fe3053", chain: "MATIC" };
+        const metaData = await Moralis.Web3API.token.getNFTMetadata(options);
+
+        console.log({ getNFTMetadata: metaData });
+      }
+      // getNFTMetadata()
+
+      async function getTokenIdMetadata() {
+        const options = { ...boredApeYachtClub.nft };
+        const tokenIdMetadata = await Moralis.Web3API.token.getTokenIdMetadata(options);
+
+        console.log({ getTokenIdMetadata: tokenIdMetadata, owner_of: tokenIdMetadata.owner_of });
+      }
+      // getTokenIdMetadata();
+
+      function fixUrl(url) {
+        if (url.startsWith('ipfs')) {
+          return 'https://ipfs.moralis.io:2053/ipfs/'+url.split('ipfs://ipfs/').slice(-1)[0]
+        } else {
+          return url+'?format=json'
+        }
+      }
+
+
+
+      // console.log('https://ipfs.moralis.io:2053/ipfs/'+'ipfs://ipfs/QmeX6Leutvn7DuZBRWV1jFGrMuAzzNX1KJWvoPeKcArWTP/image.png'.split('ipfs://ipfs/').slice(-1)[0])
+
+
+    </script>
+    <script>
+      let isCanBeUserOrOwnerFake;
+
+      Moralis.authenticate().then(user => {
+        isCanBeUserOrOwnerFake = user.get('ethAddress');
+        console.log(user.get('ethAddress'))
+      }).then(() => {
+        async function getTokenIdMetadata_2(options) {
+          console.log({ options })
+          const tokenIdMetadata = await Moralis.Web3API.token.getTokenIdMetadata(options);
+
+          /*
+            ini dipinjem dulu jadi kaya fake gitu soalnya di opensea address: 0x4F78E607E3095E9e7854DbEE20B50553bafabFc2
+            minting pake polygon yang dimna polygon itu lazy minting, lazyminting yang berarti belom ke data di mainnet blockhain jika belum terjual
+          */
+          tokenIdMetadata.owner_of = isCanBeUserOrOwnerFake; 
+
+          if (tokenIdMetadata.owner_of === isCanBeUserOrOwnerFake) {
+            console.log('kamu dapat diskon')
+          } else {
+            console.log('addressmu tidak benar')
+          }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+          // handle the scanned code as you like, for example:
+          console.log(`Code matched = ${decodedText}`, decodedResult);
+          const scannedNftInfo = JSON.parse(decodedText);
+          console.log({ scannedNftInfo }) // result { address: '0xc...', token_id: 8520 }
+
+          getTokenIdMetadata_2(scannedNftInfo)
+        }
+
+        function onScanFailure(error) {
+          // handle scan failure, usually better to ignore and keep scanning.
+          // for example:
+          console.warn(`Code scan error = ${error}`);
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader",
+          { fps: 10, qrbox: {width: 250, height: 250} },
+          /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+      });
+
+      
+    </script>
+  </body>
+</html>
